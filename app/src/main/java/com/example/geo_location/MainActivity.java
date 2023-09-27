@@ -7,7 +7,9 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -16,6 +18,8 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_REQUEST_CODE = 5;
     private TextView locationTv;
+    private String locationProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,9 +51,40 @@ public class MainActivity extends AppCompatActivity {
             // Last know location
             Location location = locationManager.getLastKnownLocation(serviceProvider);
 
-            displayPosition(location);
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            criteria.setAltitudeRequired(false);
+            criteria.setBearingRequired(false);
+            criteria.setCostAllowed(false);
+
+            locationProvider = locationManager.getBestProvider(criteria, true);
+
+            locationManager.requestLocationUpdates(
+                    locationProvider,
+                    2000,
+                    2,
+                    listener);
+
         }
     }
+
+    private LocationListener listener = new LocationListener() {
+
+        @Override
+        public void onLocationChanged(@NonNull Location location) {
+            displayPosition(location);
+        }
+
+        @Override
+        public void onProviderEnabled(@NonNull String provider) {
+            LocationListener.super.onProviderEnabled(provider);
+        }
+
+        @Override
+        public void onProviderDisabled(@NonNull String provider) {
+            LocationListener.super.onProviderDisabled(provider);
+        }
+    };
 
     private void displayPosition(Location location) {
         if(location != null){
