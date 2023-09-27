@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -18,9 +19,12 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_REQUEST_CODE = 5;
     private TextView locationTv;
+
     private String locationProvider;
+    private LocationManager locationManager;
 
     //vars end
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             String serviceProvider = LocationManager.GPS_PROVIDER;
 
             // we need location Manager
-            LocationManager locationManager = (LocationManager) getSystemService(locationService);
+            locationManager = (LocationManager) getSystemService(locationService);
 
             // Last know location
             Location location = locationManager.getLastKnownLocation(serviceProvider);
@@ -59,12 +63,6 @@ public class MainActivity extends AppCompatActivity {
             criteria.setCostAllowed(false);
 
             locationProvider = locationManager.getBestProvider(criteria, true);
-
-            locationManager.requestLocationUpdates(
-                    locationProvider,
-                    2000,
-                    2,
-                    listener);
 
         }
     }
@@ -106,6 +104,25 @@ public class MainActivity extends AppCompatActivity {
             // user denied the location permission
             Toast.makeText(this, "This app uses GPS it will not work properly without it.", Toast.LENGTH_LONG).show();
             finishAndRemoveTask();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    protected void onResume(){
+        super.onResume();
+        if(locationManager != null){
+            locationManager.requestLocationUpdates(
+                    locationProvider,
+                    2000,
+                    2,
+                    listener);
+        }
+    }
+
+    protected void onPause(){
+        super.onPause();
+        if(locationManager != null){
+            locationManager.removeUpdates(listener);
         }
     }
 
