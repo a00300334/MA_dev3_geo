@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView locationTv;
     private String locationProvider;
 
+    //vars end
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
